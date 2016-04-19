@@ -1,0 +1,84 @@
+.introjs-hint > .introjs-hint-pulse:hover {
+  border: 5px solid rgba(46,204,64, 0.6);
+}
+
+.introjs-hint > .introjs-hint-pulse-blue:hover {
+  border: 5px solid rgba(0,116,217, 0.6) !important;
+}
+
+.introjs-hint > .introjs-hint-pulse {
+  width: 10px;
+  height: 10px;
+  border: 5px solid rgba(1,255,112, 0.35);
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px;
+  background-color: rgba(46,204,64, 0.24);
+  z-index: 10;
+  position: absolute;
+  -webkit-transition: all 0.2s ease-out;
+     -moz-transition: all 0.2s ease-out;
+      -ms-transition: all 0.2s ease-out;
+       -o-transition: all 0.2s ease-out;
+          transition: all 0.2s ease-out;
+}
+
+.introjs-hint-pulse-blue{
+    width: 10px;
+    height: 10px;
+    border: 5px solid rgba(127,219,255,0.35) !important;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color: rgba(0,116,217,0.24) !important;
+    z-index: 10;
+    position: absolute;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+        -ms-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+}
+
+.toggle-menu-block{
+    display: block;
+    position: fixed; 
+    width: 100px;
+    height : 40px;
+    text-decoration : none;
+    color : white;
+    font-size : 0.8em;
+    font-weight : bold;
+    cursor : pointer;
+    text-align : center;
+    line-height: 40px;
+    opacity : 0.6;
+}
+
+.toggle-menu-add-comment{
+    margin-top: 40px;
+    background-color: #2ECC40;
+}
+
+.toggle-menu-add-step{
+    margin-top: 80px;
+    background-color: #0074D9;
+}
+
+.toggle-menu-run-guide{
+    display: none;
+    margin-top: 140px;
+    background-color: darkblue;
+}
+
+.toggle-menu-step-list{
+    display: none;
+    margin-top: 180px;
+    background-color: blue;
+    margin-left: 0px;
+    height: auto;
+    width: auto;
+    list-style: none;
+    padding: 5px;
+    text-align: left;
+}
