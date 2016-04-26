@@ -1,88 +1,5 @@
-document.addEventListener('DOMContentLoaded', function(){ 
-        document.body.insertAdjacentHTML('afterbegin', '<s id="toggle-comment-mode" class="not-selectable" style="opacity: 0.6; display: block; position: fixed; background-color: gray; width: 100px; height: 40px; text-decoration: none; color: white; font-size: 1.2em; cursor: pointer; text-align: center; line-height: 38px;">Toggle</s>');
-        
-        var onmouseenter = function(){
-                $(this).addClass('intro').css('box-shadow', 'inset 0 0 5px blue, 0 0 5px red').css('cursor', 'crosshair');
-            }
-        var onmouseout = function(){
-                $(this).removeClass('intro').css('box-shadow', 'none');
-            }
-        var onclick = function(event){
-                var element = event.target;
-                $('*').removeAttr('data-intro');
-                if(commentMode == 'add-comment'){
-                    addComment(element, event);
-                }else{
-                    addStep(element, event);
-                }
-        }
-        
-        function addStep(element, event){
-            $(element).attr('data-intro','');
-            onElementsHighlightMode();
-            intro.start();
-            $('.introjs-helperNumberLayer').html(parseInt(currentStep) + 1);
-            
-            //adding textarea
-            $('.introjs-tooltiptext').html($('<textarea>').attr('id', 'comment-textarea').attr('rows', 3).focus());
-            if(currentStep == 0){
-                $('.introjs-tooltiptext').append(generatePathSelector());
-            }
-            
-            //Done button event
-            $('.introjs-skipbutton').on('click', function(e){
-                comment = $(this).parent().parent().find('textarea').val();
-                var pathes = []; 
-                pathes = getPathes(this, pathes);
-                var firstStep = comments.filter(function (comment) { return comment.stepNumber == '1' });
-                if(firstStep.length){
-                    pathes = ["fullURL"];
-                }
-                currentStep++;
-                if(saveComment(element, comment, pathes)){
-                    
-                }
-            });
-            
-            $(element).removeAttr('data-intro');
-            offElementsHighlightMode();
-            event.preventDefault();
-            return false;
-        }
-        
-        function addComment(element, event){
-            $(element).attr('data-intro','');
-            onElementsHighlightMode();
-            intro.start();
-            $('.introjs-helperNumberLayer').remove();
-            
-            //adding textarea
-            $('.introjs-tooltiptext').html($('<textarea>').attr('id', 'comment-textarea').attr('rows', 3).focus());
-            $('.introjs-tooltiptext').append(generatePathSelector());
-
-            $('.introjs-skipbutton').on('click', function(e){
-                comment = $(this).parent().parent().find('textarea').val();
-                var pathes = [];
-                pathes = getPathes(this, pathes);
-                saveComment(element, comment, pathes);
-            });
-            $(element).removeAttr('data-intro');
-            offElementsHighlightMode();
-            event.preventDefault();
-            return false;
-        }
-        
-        function onElementsHighlightMode(){
-            $("body *").not(".not-selectable").on('mouseenter', onmouseenter);
-            $("body *").not(".not-selectable").on('mouseout', onmouseout);
-            $("body *").not(".not-selectable").on('click', onclick);
-        }
-        
-        function offElementsHighlightMode(){
-            $("body *").not(".not-selectable").off( "onmouseenter", onmouseenter );
-            $("body *").not(".not-selectable").off( "onmouseout", onmouseout );
-            $("body *").not(".not-selectable").off( "click", onclick );
-        }
+document.addEventListener('DOMContentLoaded', function(){
+        document.body.insertAdjacentHTML('afterbegin', '<s id="toggle-comment-mode" class="not-selectable" style="opacity: 0.8; display: block; position: fixed; background-color: gray; width: 100px; height: 40px; text-decoration: none; color: white; font-size: 1.2em; cursor: pointer; text-align: center; line-height: 38px; z-index: 999999;">Toggle</s>');
         
         var currentStep = 0;
         var commentMode = '';
@@ -90,80 +7,20 @@ document.addEventListener('DOMContentLoaded', function(){
         var librariesLoadedFlag = false;
         var comments = [];
         var intro = '';
+        var myDropzone = false;
         if (!location.origin) location.origin = location.protocol + "//" + location.host;
         
         var toggleButton = document.getElementById('toggle-comment-mode');
         
         toggleButton.addEventListener('click', function(){
-            loadLibraries();
             if(librariesLoadedFlag){
                 toggleCommentsMode();
             }else{
+                loadLibraries();
                 onLibrariesAvailable(toggleCommentsMode);
             }
         });
         
-
-        function onLibrariesAvailable(oCallback) {
-            if (typeof(eval('jQuery')) === 'function' && typeof(eval('$().sortable')) === 'function') {
-                librariesLoadedFlag = true;
-                oCallback();
-            } else {
-            setTimeout(function () {
-                onLibrariesAvailable(oCallback);
-            }), 50
-            }
-        }
-
-        
-        function toggleCommentsMode(){
-            if (window.jQuery) {
-                $.ajax({
-                    method: "POST",
-                    url: "http://oldtimers.me/server.php?action=getComments",
-                    data: {
-                        'baseURL' :  location.origin
-                    }
-                })
-                .done(function( result ) {
-                    comments = JSON.parse(result);
-                    intro = introJs();
-                    intro.onexit(offElementsHighlightMode);
-
-                    if(!showCommentsModeFlag){
-                        //Add comment button
-                        $('#toggle-comment-mode').after($('<s>').text('Add comment').attr('id', 'add-comment').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-comment'));
-                        //Add step button
-                        $('#toggle-comment-mode').after($('<s>').text('Add guide step').attr('id', 'add-step').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-step'));
-                        //Run guide button
-                        $('#toggle-comment-mode').after($('<s>').text('Run guide').attr('id', 'run-guide').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-run-guide'));
-                        //Guide steps list
-                        $('#toggle-comment-mode').after($('<ul>').attr('id', 'guide-steps').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-step-list'));
-                        
-                        $('body').on('click', '#add-comment, #add-step',  function(){
-                            onElementsHighlightMode();
-                            commentMode = $(this).attr('id');
-                        });
-                        
-                        $('body').on('click', '#run-guide',  function(){
-                            offElementsHighlightMode();
-                            intro.start();
-                        });
-                        
-                        addHints(comments);
-                        initJquerySortable();
-                        intro.refresh();
-                        
-                        showCommentsModeFlag = true;
-                    }else{
-                        $('.introjs-hints, #add-comment, #add-step, #run-guide, #guide-steps').remove();
-                        offElementsHighlightMode();
-                        showCommentsModeFlag = false;
-                    }
-                });
-            }
-        }
-      
         function loadLibraries(){
             var jQuery = document.createElement('script'); 
             jQuery.type = 'text/javascript';
@@ -199,11 +56,221 @@ document.addEventListener('DOMContentLoaded', function(){
             htmlSortable.async = true;
             htmlSortable.src = 'http://oldtimers.me/html.sortable.js';
             document.head.appendChild(htmlSortable);
+            
+            var dropZone = document.createElement('script');
+            dropZone.type = 'text/javascript';
+            dropZone.id = 'dropZone';
+            dropZone.async = true;
+            dropZone.src = 'http://oldtimers.me/dropzone.js';
+            document.head.appendChild(dropZone);
         }
         
+        function onLibrariesAvailable(oCallback) {
+            if (typeof(eval('jQuery')) === 'function' && typeof(eval('$().sortable')) === 'function') {
+                librariesLoadedFlag = true;
+                oCallback();
+            } else {
+            setTimeout(function () {
+                onLibrariesAvailable(oCallback);
+            }), 50
+            }
+        }
+        
+        // START Highlight mode code //
+        var onmouseenter = function(){
+                $(this).addClass('intro').css('box-shadow', 'inset 0 0 5px blue, 0 0 5px red').css('cursor', 'crosshair');
+            }
+        var onmouseout = function(){
+                $(this).removeClass('intro').css('box-shadow', 'none');
+            }
+        var onclick = function(event){
+                var element = event.target;
+                $('*').removeAttr('data-intro');
+                
+                onElementsHighlightMode();
+                
+                switch(commentMode){
+                    case 'add-comment':
+                        addComment(element, event);
+                        break;
+                    case 'add-step':
+                        addStep(element, event);
+                        break;
+                    case 'add-file':
+                        addFile(element, event);
+                        break;
+                    default:
+                        break;
+                }
+                
+                offElementsHighlightMode();
+                event.preventDefault();
+                return false;
+        }
+        
+        function onElementsHighlightMode(){
+            $("body *").not(".not-selectable").on('mouseenter', onmouseenter);
+            $("body *").not(".not-selectable").on('mouseout', onmouseout);
+            $("body *").not(".not-selectable").on('click', onclick);
+        }
+        
+        function offElementsHighlightMode(){
+            $("body *").not(".not-selectable").off( "mouseenter", onmouseenter );
+            $("body *").not(".not-selectable").off( "mouseout", onmouseout );
+            $("body *").not(".not-selectable").off( "click", onclick );
+        }
+        
+        // END Highlight mode code //
+        
+        function toggleCommentsMode(){
+            if (!window.jQuery) {
+                return false;
+            }
+            
+            if(showCommentsModeFlag){
+                $('.introjs-hints, #add-comment, #add-step, #add-file, #run-guide, #guide-steps').remove();
+                offElementsHighlightMode();
+                showCommentsModeFlag = false;
+                return false;
+            }
+            
+            $.ajax({
+                method: "POST",
+                url: "http://oldtimers.me/server.php?action=getComments",
+                data: {
+                    'baseURL' :  location.origin
+                }
+            })
+            .done(function( result ) {
+                comments = JSON.parse(result);
+                intro = introJs();
+                intro.onexit(offElementsHighlightMode);
+
+                
+                    //Add comment button
+                    $('#toggle-comment-mode').after($('<s>').text('Add comment').attr('id', 'add-comment').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-comment'));
+                    //Add step button
+                    $('#toggle-comment-mode').after($('<s>').text('Add guide step').attr('id', 'add-step').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-step'));
+                    //Add File/Image button
+                    $('#toggle-comment-mode').after($('<s>').text('Add file/image').attr('id', 'add-file').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-file'));
+                    //Run guide button
+                    $('#toggle-comment-mode').after($('<s>').text('Run guide').attr('id', 'run-guide').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-run-guide'));
+                    //Guide steps list
+                    $('#toggle-comment-mode').after($('<ul>').attr('id', 'guide-steps').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-step-list'));
+                    
+                    $('body').on('click', '#add-comment, #add-step, #add-file',  function(){
+                        offElementsHighlightMode();
+                        onElementsHighlightMode();
+                        commentMode = $(this).attr('id');
+                    });
+                    
+                    $('body').on('click', '#run-guide',  function(){
+                        offElementsHighlightMode();
+                        intro.start();
+                    });
+                    
+                    addHints(comments);
+                    initJquerySortable();
+                    intro.refresh();
+                    
+                    showCommentsModeFlag = true;
+            });
+        }
+        
+        function addStep(element, event){
+            $(element).attr('data-intro','');
+            intro.start();
+            $('.introjs-helperNumberLayer').html(parseInt(currentStep) + 1);
+            
+            //adding textarea
+            $('.introjs-tooltiptext').html($('<textarea>').attr('id', 'comment-textarea').attr('rows', 3).focus());
+            if(currentStep == 0){
+                $('.introjs-tooltiptext').append(generatePathSelector());
+            }
+            
+            //Done button event
+            $('.introjs-skipbutton').on('click', function(e){
+                comment = $(this).parent().parent().find('textarea').val();
+                var pathes = []; 
+                pathes = getPathes(this, pathes);
+                var firstStep = comments.filter(function (comment) { return comment.stepNumber == '1' });
+                if(firstStep.length){
+                    pathes = ["fullURL"];
+                }
+                currentStep++;
+                if(saveComment(element, comment, pathes)){
+                    
+                }
+            });
+            
+            $(element).removeAttr('data-intro');
+        }
+        
+        function addComment(element, event){
+            $(element).attr('data-intro','');
+            intro.start();
+            $('.introjs-helperNumberLayer').remove();
+            
+            //adding textarea
+            $('.introjs-tooltiptext').html($('<textarea>').attr('id', 'comment-textarea').attr('rows', 3).focus());
+            $('.introjs-tooltiptext').append(generatePathSelector());
+
+            $('.introjs-skipbutton').on('click', function(e){
+                comment = $(this).parent().parent().find('textarea').val();
+                var pathes = [];
+                pathes = getPathes(this, pathes);
+                saveComment(element, comment, pathes);
+            });
+            $(element).removeAttr('data-intro');
+        }
+        
+        function addFile(element, event){
+            $(element).attr('data-intro','');
+            intro.start();
+            $('.introjs-helperNumberLayer').remove();
+            $('.introjs-tooltiptext').html($('<textarea>').attr('id', 'comment-textarea').attr('rows', 3).focus());
+            $('.introjs-tooltiptext').append(
+                    $('<form>').attr('id', 'fileDropArea').addClass('dropzone-previews').html('Drop file here...'));
+            
+                    myDropzone = new Dropzone("#fileDropArea", { 
+                                url: "/server.php?action=uploadFile",
+                                maxFilesize: 2,
+                                uploadMultiple: false,
+                                thumbnailWidth: 60,
+                                thumbnailHeight: 60,
+                                maxFiles: 0,
+                                autoProcessQueue: false,
+                                acceptedFiles: 'image/*,application/pdf,.psd',
+                            });
+            
+                        //renameFilename: true
+                        //paramName: "file", // The name that will be used to transfer the file
+//                        accept: function(file, done) {
+//                          if (file.name == "justinbieber.jpg") {
+//                            done("Naha, you don't.");
+//                          }
+//                          else { done(); }
+//                        }
+            
+            $('.introjs-tooltiptext').append(generatePathSelector());
+
+            $('.introjs-skipbutton').on('click', function(e){
+                comment = $(this).parent().parent().find('textarea').val();
+                var pathes = [];
+                pathes = getPathes(this, pathes);
+                saveComment(element, comment, pathes);
+            });
+            $(element).removeAttr('data-intro');
+        }
+      
         function saveComment(element, comment, pathes){
             var selector = generate(element);
             var counter = comments.length;
+            
+            if(!pathes.length){
+                pathes = ["fullURL"];
+            }
+            
             var data = {
                     'id' : counter,
                     'comment' : comment,
@@ -218,7 +285,11 @@ document.addEventListener('DOMContentLoaded', function(){
                 data.stepNumber = currentStep;
             }
             
-            $(element).removeAttr('data-intro');
+            if(commentMode === 'add-file'){
+                data.fileName = currentStep;
+            }
+            
+            $(element).removeAttr('data-intro').removeClass('intro').css('box-shadow', 'none');
             
             $.ajax({
                 method: "POST",
@@ -226,10 +297,18 @@ document.addEventListener('DOMContentLoaded', function(){
                 data: data
             })
             .fail(function() {
-                currentStep--;
+                if(commentMode === 'add-step'){
+                    currentStep--;
+                }
                 return false;
             })
-            .done(function( html ) {
+            .done(function( lastId ) {
+                
+                if(myDropzone){
+                    console.log(myDropzone);
+                    //myDropzone.renameFilename = lastId;
+                    myDropzone.processQueue();
+                }
                 comments.push(data);
                 addHints(comments);
                 initJquerySortable();
@@ -248,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function(){
               //fill in steps list
                 var node = document.createElement('li');
                 var textnode = document.createTextNode('Guide Step: ' + value.comment);
-                node.className = 'not-selectable';
+                node.className = 'not-selectable guide-step-list-element';
                 node.setAttribute('data-step-id', value.id);
                 node.appendChild(textnode);
                 document.getElementById('guide-steps').appendChild(node);   
@@ -264,6 +343,10 @@ document.addEventListener('DOMContentLoaded', function(){
                 var element = document.querySelector(value.elementPath);
                 value.isGuide = false;
                 
+                if(element === null){
+                    return true;
+                }
+
                 //if it's guide step
                 if(typeof value.stepNumber !== 'undefined' && value.stepNumber > 0){
                    element.setAttribute('data-step', value.stepNumber);
@@ -314,15 +397,17 @@ document.addEventListener('DOMContentLoaded', function(){
                 }
             });
             
-            fillInStepsList(stepsList);
-            intro.setOptions({
-                'showBullets': false,
-                hints: hints
+            if(hints.length){
+                fillInStepsList(stepsList);
+                intro.setOptions({
+                    'showBullets': false,
+                    hints: hints
+                    
+                });
                 
-            });
-            
-            intro.addHints();
-            intro.refresh();
+                intro.addHints();
+                intro.refresh();
+            }
             
             //forbind to select hints in add mode
             $('.introjs-hint, .introjs-hint > *').addClass('not-selectable');
@@ -377,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
 }, false);
 
-// ------- START functions responsible for getting css selector for element ------- //
+// START Functions responsible for getting css selector for element //
 function childNodeIndexOf(parentNode, childNode) {
     var childNodes = parentNode.childNodes;
     for (var i = 0, l = childNodes.length; i < l; i++) {
@@ -427,4 +512,4 @@ function find(result) {
     if (!element) { throw new Error('Unable to find element with selector: ' + result.selector); }
     return element.childNodes[result.childNodeIndex];
 }
-// ------- END functions responsible for getting css selector for element ------- //
+// END functions responsible for getting css selector for element //

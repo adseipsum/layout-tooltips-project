@@ -19,6 +19,9 @@ if(!empty($_GET['action'])){
 	case 'updateGuideSteps':
 		updateGuideSteps($_POST, $connection);
 		break;
+	case 'uploadFile':
+		uploadFile($_POST, $_FILES, $connection);
+		break;
 	default:
 		break;
 	}
@@ -33,8 +36,8 @@ function saveComment($data, $connection){
 	if(!$result = $connection->query($sql)){
 		die('There was an error running the query [' . $connection->error . ']');
 	}
-	
-	return true;
+
+	echo mysqli_insert_id($connection);
 }
 
 function getComments($data, $connection){
@@ -62,6 +65,13 @@ function updateGuideSteps($data, $connection){
 	}
 	
 	getComments($data, $connection);
+}
+
+function uploadFile($data, $files, $connection){
+	
+	var_dump($data);
+
+	return true;
 }
 
 $connection->close();

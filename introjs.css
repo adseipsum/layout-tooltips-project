@@ -113,6 +113,7 @@ tr.introjs-showElement > th {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff3019', endColorstr='#cf0404', GradientType=0); /* IE6-9 */
   filter: progid:DXImageTransform.Microsoft.Shadow(direction=135, strength=2, color=ff0000); /* IE10 text shadows */
   box-shadow: 0 2px 5px rgba(0,0,0,.4);
+  box-sizing: initial;
 }
 
 .introjs-arrow {
@@ -245,6 +246,11 @@ tr.introjs-showElement > th {
   border-color: #bcbcbc;
   text-decoration: none;
   box-shadow: 0px 1px 1px #e3e3e3;
+  color: #7a7a7a;
+}
+
+.introjs-button:visited, .introjs-button:link{
+    color: #7a7a7a;
 }
 
 .introjs-button:focus,

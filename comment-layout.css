@@ -52,12 +52,13 @@
     cursor : pointer;
     text-align : center;
     line-height: 40px;
-    opacity : 0.6;
+    opacity : 0.8;
+    z-index: 999999;
 }
 
 .toggle-menu-add-comment{
     margin-top: 40px;
-    background-color: #2ECC40;
+    background-color: #0CF06A;
 }
 
 .toggle-menu-add-step{
@@ -65,20 +66,39 @@
     background-color: #0074D9;
 }
 
+.toggle-menu-add-file{
+    margin-top: 120px;
+    background-color: #96B300;
+}
+
 .toggle-menu-run-guide{
     display: none;
-    margin-top: 140px;
-    background-color: darkblue;
+    margin-top: 180px;
+    background-color: #7D0CF0;
 }
 
 .toggle-menu-step-list{
     display: none;
-    margin-top: 180px;
-    background-color: blue;
+    margin-top: 220px;
+    background-color: #2ECC40;
     margin-left: 0px;
     height: auto;
     width: auto;
     list-style: none;
     padding: 5px;
     text-align: left;
+}
+
+.guide-step-list-element{
+    line-height: 18px;
+    margin: 0px;
+}
+
+#fileDropArea{
+    width: 200px;
+    height: 100%;
+    border: 1px dashed lightblue;
+    margin: 10px;
+    text-align: center;
+    vertical-align: middle;
 }
