@@ -20,7 +20,7 @@ if(!empty($_GET['action'])){
 		updateGuideSteps($_POST, $connection);
 		break;
 	case 'uploadFile':
-		uploadFile($_POST, $_FILES, $connection);
+		uploadFile($_FILES, $_GET, $connection);
 		break;
 	default:
 		break;
@@ -67,10 +67,33 @@ function updateGuideSteps($data, $connection){
 	getComments($data, $connection);
 }
 
-function uploadFile($data, $files, $connection){
+function uploadFile($files, $get, $connection){
+	$finfo = new finfo(FILEINFO_MIME_TYPE);
+	if (false === $ext = array_search(
+			$finfo->file($files['file']['tmp_name']),
+			array(
+					'jpg' => 'image/jpeg',
+					'png' => 'image/png',
+					'gif' => 'image/gif',
+					'pdf' => 'application/pdf',
+			),
+			true
+	)) {
+		throw new RuntimeException('Invalid file format.');
+	}
 	
-	var_dump($data);
-
+	if(!empty($files['file']) && !empty($get['lastId'])){
+		if (!move_uploaded_file($files['file']['tmp_name'], sprintf('./uploads/%s.%s', $get['lastId'], $ext))) {
+			throw new RuntimeException('Failed to move uploaded file.');
+		}
+		
+		$sql = "UPDATE `comments` SET `fileName` = '" . $get['lastId'] . '.' . $ext . "' WHERE `id` = '{$get['lastId']}'";
+		
+		if(!$result = $connection->query($sql)){
+			die('There was an error running the query [' . $connection->error . ']');
+		}
+	}
+	
 	return true;
 }
 

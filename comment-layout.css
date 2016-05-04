@@ -1,19 +1,23 @@
 .introjs-hint > .introjs-hint-pulse:hover {
-  border: 5px solid rgba(46,204,64, 0.6);
+  border: 5px solid rgba(60,243,135, 0.6);
 }
 
 .introjs-hint > .introjs-hint-pulse-blue:hover {
-  border: 5px solid rgba(0,116,217, 0.6) !important;
+  border: 5px solid rgba(50,143,224, 0.6) !important;
+}
+
+.introjs-hint > .introjs-hint-pulse-green:hover {
+  border: 5px solid rgba(160,176,76, 0.6) !important;
 }
 
 .introjs-hint > .introjs-hint-pulse {
   width: 10px;
   height: 10px;
-  border: 5px solid rgba(1,255,112, 0.35);
+  border: 5px solid rgba(12,240,106, 0.35);
   -webkit-border-radius: 30px;
   -moz-border-radius: 30px;
   border-radius: 30px;
-  background-color: rgba(46,204,64, 0.24);
+  background-color: rgba(9,192,84, 0.24);
   z-index: 10;
   position: absolute;
   -webkit-transition: all 0.2s ease-out;
@@ -26,11 +30,28 @@
 .introjs-hint-pulse-blue{
     width: 10px;
     height: 10px;
-    border: 5px solid rgba(127,219,255,0.35) !important;
+    border: 5px solid rgba(0,116,217,0.35) !important;
     -webkit-border-radius: 30px;
     -moz-border-radius: 30px;
     border-radius: 30px;
-    background-color: rgba(0,116,217,0.24) !important;
+    background-color: rgba(0,92,173,0.24) !important;
+    z-index: 10;
+    position: absolute;
+    -webkit-transition: all 0.2s ease-out;
+       -moz-transition: all 0.2s ease-out;
+        -ms-transition: all 0.2s ease-out;
+         -o-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+}
+
+.introjs-hint-pulse-green{
+    width: 10px;
+    height: 10px;
+    border: 5px solid rgba(181,201,76,0.35) !important;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color: rgba(105,125,0,0.24) !important;
     z-index: 10;
     position: absolute;
     -webkit-transition: all 0.2s ease-out;
@@ -47,12 +68,12 @@
     height : 40px;
     text-decoration : none;
     color : white;
-    font-size : 0.8em;
+    font-size : 0.9em;
     font-weight : bold;
     cursor : pointer;
     text-align : center;
     line-height: 40px;
-    opacity : 0.8;
+    opacity : 0.7;
     z-index: 999999;
 }
 
@@ -101,4 +122,15 @@
     margin: 10px;
     text-align: center;
     vertical-align: middle;
+    cursor: pointer;
+}
+
+#comment-textarea, #path-selector{
+    margin: 10px;
+    width: 200px;
+    white-space: pre-line;
+}
+
+.dz-filename > span{
+    white-space: pre-wrap;
 }

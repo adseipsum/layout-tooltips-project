@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', function(){
         document.body.insertAdjacentHTML('afterbegin', '<s id="toggle-comment-mode" class="not-selectable" style="opacity: 0.8; display: block; position: fixed; background-color: gray; width: 100px; height: 40px; text-decoration: none; color: white; font-size: 1.2em; cursor: pointer; text-align: center; line-height: 38px; z-index: 999999;">Toggle</s>');
         
-        var currentStep = 0;
-        var commentMode = '';
+        var currentStep = 0; //saves current step for guide
+        var commentMode = ''; //can be: add-comment, add-step, add-file
         var showCommentsModeFlag = false;
         var librariesLoadedFlag = false;
-        var comments = [];
+        var comments = []; //current comments object
         var intro = '';
         var myDropzone = false;
+        var lastInsertedId = 0;
         if (!location.origin) location.origin = location.protocol + "//" + location.host;
         
         var toggleButton = document.getElementById('toggle-comment-mode');
@@ -57,6 +58,13 @@ document.addEventListener('DOMContentLoaded', function(){
             htmlSortable.src = 'http://oldtimers.me/html.sortable.js';
             document.head.appendChild(htmlSortable);
             
+            var dropZoneCSS = document.createElement('link');
+            dropZoneCSS.rel = 'stylesheet';
+            dropZoneCSS.id = 'dropZoneCSS';
+            dropZoneCSS.async = true;
+            dropZoneCSS.href = 'http://oldtimers.me/dropzone.css';
+            document.head.appendChild(dropZoneCSS);
+            
             var dropZone = document.createElement('script');
             dropZone.type = 'text/javascript';
             dropZone.id = 'dropZone';
@@ -81,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 $(this).addClass('intro').css('box-shadow', 'inset 0 0 5px blue, 0 0 5px red').css('cursor', 'crosshair');
             }
         var onmouseout = function(){
-                $(this).removeClass('intro').css('box-shadow', 'none');
+                $(this).removeClass('intro').css('box-shadow', 'none').css('cursor', 'default');
             }
         var onclick = function(event){
                 var element = event.target;
@@ -103,8 +111,9 @@ document.addEventListener('DOMContentLoaded', function(){
                         break;
                 }
                 
-                offElementsHighlightMode();
+                offElementsHighlightMode(true);
                 event.preventDefault();
+                event.stopPropagation();
                 return false;
         }
         
@@ -114,18 +123,30 @@ document.addEventListener('DOMContentLoaded', function(){
             $("body *").not(".not-selectable").on('click', onclick);
         }
         
-        function offElementsHighlightMode(){
+        function offElementsHighlightMode(switchOffButtons = false){
+            if(switchOffButtons){
+                $('#add-comment, #add-step, #add-file').css('opacity', '0.7');
+            }
+            $('.intro').removeAttr('data-intro').removeClass('intro').css('box-shadow', 'none').css('cursor', 'default');
+            if(myDropzone){
+                myDropzone.removeAllFiles();
+            }
             $("body *").not(".not-selectable").off( "mouseenter", onmouseenter );
             $("body *").not(".not-selectable").off( "mouseout", onmouseout );
             $("body *").not(".not-selectable").off( "click", onclick );
         }
-        
         // END Highlight mode code //
         
+        var doneButton = document.getElementById('introjs-skipbutton');
+        
+        doneButton.addEventListener('click', function(){
+            console.log(2222);
+        });
+        
         function toggleCommentsMode(){
-            if (!window.jQuery) {
-                return false;
-            }
+//            if (!window.jQuery) {
+//                return false;
+//            }
             
             if(showCommentsModeFlag){
                 $('.introjs-hints, #add-comment, #add-step, #add-file, #run-guide, #guide-steps').remove();
@@ -159,6 +180,8 @@ document.addEventListener('DOMContentLoaded', function(){
                     $('#toggle-comment-mode').after($('<ul>').attr('id', 'guide-steps').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-step-list'));
                     
                     $('body').on('click', '#add-comment, #add-step, #add-file',  function(){
+                        $('#add-comment, #add-step, #add-file').css('opacity', '0.7');
+                        $(this).css('opacity', '1');
                         offElementsHighlightMode();
                         onElementsHighlightMode();
                         commentMode = $(this).attr('id');
@@ -198,12 +221,10 @@ document.addEventListener('DOMContentLoaded', function(){
                     pathes = ["fullURL"];
                 }
                 currentStep++;
-                if(saveComment(element, comment, pathes)){
-                    
-                }
+                saveComment(element, comment, pathes)
             });
             
-            $(element).removeAttr('data-intro');
+            
         }
         
         function addComment(element, event){
@@ -221,7 +242,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 pathes = getPathes(this, pathes);
                 saveComment(element, comment, pathes);
             });
-            $(element).removeAttr('data-intro');
         }
         
         function addFile(element, event){
@@ -234,35 +254,49 @@ document.addEventListener('DOMContentLoaded', function(){
             
                     myDropzone = new Dropzone("#fileDropArea", { 
                                 url: "/server.php?action=uploadFile",
-                                maxFilesize: 2,
+                                autoProcessQueue: false,
+                                maxFilesize: '2000',
                                 uploadMultiple: false,
                                 thumbnailWidth: 60,
                                 thumbnailHeight: 60,
-                                maxFiles: 0,
-                                autoProcessQueue: false,
-                                acceptedFiles: 'image/*,application/pdf,.psd',
+                                maxFiles: 1,
+                                acceptedFiles: 'image/jpeg, image/png, image/gif, application/pdf',
+                                addRemoveLinks: true,
+                                init:function(){
+                                    var self = this;
+                                    self.on("processing", function (file, serverFileName) {
+                                        if(lastInsertedId){
+                                            self.options.url = '/server.php?action=uploadFile&lastId=' + lastInsertedId;
+                                        }
+                                    });
+                                    
+                                    self.on('maxfilesreached', function() {
+                                        self.removeEventListeners();
+                                    });
+                                    
+                                    self.on('removedfile', function (file) {
+                                        self.setupEventListeners();
+                                    });
+                                    
+                                    self.on('success', function() {
+                                        refreshComments();
+                                    });
+                                }
                             });
-            
-                        //renameFilename: true
-                        //paramName: "file", // The name that will be used to transfer the file
-//                        accept: function(file, done) {
-//                          if (file.name == "justinbieber.jpg") {
-//                            done("Naha, you don't.");
-//                          }
-//                          else { done(); }
-//                        }
             
             $('.introjs-tooltiptext').append(generatePathSelector());
 
+            $('.introjs-skipbutton')[0].onclick = null;
             $('.introjs-skipbutton').on('click', function(e){
+                e.stopPropagation();
                 comment = $(this).parent().parent().find('textarea').val();
                 var pathes = [];
                 pathes = getPathes(this, pathes);
                 saveComment(element, comment, pathes);
+                $(this).css('visibility','hidden');
             });
-            $(element).removeAttr('data-intro');
         }
-      
+        
         function saveComment(element, comment, pathes){
             var selector = generate(element);
             var counter = comments.length;
@@ -289,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 data.fileName = currentStep;
             }
             
-            $(element).removeAttr('data-intro').removeClass('intro').css('box-shadow', 'none');
+            //$(element).removeAttr('data-intro').removeClass('intro').css('box-shadow', 'none');
             
             $.ajax({
                 method: "POST",
@@ -300,23 +334,28 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(commentMode === 'add-step'){
                     currentStep--;
                 }
-                return false;
             })
             .done(function( lastId ) {
+                lastInsertedId = lastId;
+                comments.push(data);
                 
                 if(myDropzone){
-                    console.log(myDropzone);
-                    //myDropzone.renameFilename = lastId;
                     myDropzone.processQueue();
+                }else{
+                    refreshComments();
                 }
-                comments.push(data);
-                addHints(comments);
-                initJquerySortable();
-                onElementsHighlightMode();
-                return true;
+                $(element).removeAttr('data-intro');
             });
             
-            return false;
+            return true;
+        }
+        
+        function refreshComments(){
+            intro.exit();
+            addHints(comments);
+            initJquerySortable();
+            onElementsHighlightMode();
+            return true;
         }
         
         function fillInStepsList(stepsList){
@@ -342,6 +381,7 @@ document.addEventListener('DOMContentLoaded', function(){
             $(comments).each(function(key, value){
                 var element = document.querySelector(value.elementPath);
                 value.isGuide = false;
+                value.isFile = false;
                 
                 if(element === null){
                     return true;
@@ -361,13 +401,13 @@ document.addEventListener('DOMContentLoaded', function(){
                    stepsList.push({'comment' : value.comment, 'id' : value.id, 'stepNumber' : value.stepNumber})
                 }
                 
+                if(value.fileName){
+                    value.isFile = true;
+                    value.comment = value.comment + ' ' + '<a target="_blank" href="/uploads/' + value.fileName + '">File</a>';
+                }
+                
                 if($.inArray('fullURL', JSON.parse(value.namespace)) > -1){
-                    hints.push({
-                        element: element,
-                        hint: value.comment,
-                        hintPosition: value.position,
-                        isGuide : value.isGuide
-                    });
+                    pushHints(value, element, hints);
                 }else{
                     var pathArray = window.location.pathname.split( '/' );
                     var pathes = new Array();
@@ -387,12 +427,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     });
                     
                     if(counter > 0){
-                        hints.push({
-                            element: document.querySelector(value.elementPath),
-                            hint: value.comment,
-                            hintPosition: value.position,
-                            isGuide : value.isGuide
-                        });
+                        pushHints(value, document.querySelector(value.elementPath), hints);
                     }
                 }
             });
@@ -411,6 +446,17 @@ document.addEventListener('DOMContentLoaded', function(){
             
             //forbind to select hints in add mode
             $('.introjs-hint, .introjs-hint > *').addClass('not-selectable');
+        }
+        
+        function pushHints(value, element, hints){
+            hints.push({
+                element: element,
+                hint: value.comment,
+                hintPosition: value.position,
+                isGuide : value.isGuide,
+                isFile : value.isFile
+            });
+            return hints;
         }
         
         function initJquerySortable(stepsListUpdatingFlag) {

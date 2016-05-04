@@ -1340,8 +1340,13 @@
       hintDot.className = 'introjs-hint-dot';
       var hintPulse = document.createElement('div');
       hintPulse.className = 'introjs-hint-pulse';
+      
       if(item.isGuide){
           hintPulse.className = 'introjs-hint-pulse-blue';
+      }
+      
+      if(item.isFile){
+          hintPulse.className = 'introjs-hint-pulse-green';
       }
 
       hint.appendChild(hintDot);

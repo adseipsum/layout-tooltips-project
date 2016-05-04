@@ -172,6 +172,12 @@
     transform: scale(1); } }
 .dropzone, .dropzone * {
   box-sizing: border-box; }
+.dz-upload { 
+    display: block; 
+    background-color: lightblue; 
+    height: 10px;
+    width: 0px;
+}
 
 .dropzone {
   min-height: 150px;
