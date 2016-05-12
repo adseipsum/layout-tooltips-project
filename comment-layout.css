@@ -73,34 +73,38 @@
     cursor : pointer;
     text-align : center;
     line-height: 40px;
-    opacity : 0.7;
     z-index: 999999;
+    bottom: 5px;
+    right: 10px;
+    border: 0 solid #CFCFCF; 
+    border-radius: 3px;
 }
 
 .toggle-menu-add-comment{
-    margin-top: 40px;
+    margin-bottom: 45px;
     background-color: #0CF06A;
 }
 
 .toggle-menu-add-step{
-    margin-top: 80px;
+    margin-bottom: 90px;
     background-color: #0074D9;
 }
 
 .toggle-menu-add-file{
-    margin-top: 120px;
+    margin-bottom: 135px;
     background-color: #96B300;
 }
 
 .toggle-menu-run-guide{
     display: none;
-    margin-top: 180px;
+    margin-bottom: 190px;
     background-color: #7D0CF0;
+    border-top-left-radius: 0px;
 }
 
 .toggle-menu-step-list{
     display: none;
-    margin-top: 220px;
+    margin-bottom: 230px;
     background-color: #2ECC40;
     margin-left: 0px;
     height: auto;
@@ -108,6 +112,7 @@
     list-style: none;
     padding: 5px;
     text-align: left;
+    font-family: Arial;
 }
 
 .guide-step-list-element{

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function(){
-        document.body.insertAdjacentHTML('afterbegin', '<s id="toggle-comment-mode" class="not-selectable" style="opacity: 0.8; display: block; position: fixed; background-color: gray; width: 100px; height: 40px; text-decoration: none; color: white; font-size: 1.2em; cursor: pointer; text-align: center; line-height: 38px; z-index: 999999;">Toggle</s>');
+        document.body.insertAdjacentHTML('afterbegin', '<s id="toggle-comment-mode" class="not-selectable" style="border: 0 solid #CFCFCF; border-radius: 3px; display: block; position: fixed; background-color: #626f75; width: 100px; height: 40px; text-decoration: none; color: white; font-size: 1.1em; cursor: pointer; text-align: center; line-height: 38px; z-index: 999999; right:10px; bottom:5px;">Help</s>');
         
         var currentStep = 0; //saves current step for guide
         var commentMode = ''; //can be: add-comment, add-step, add-file
@@ -137,16 +137,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
         // END Highlight mode code //
         
-        var doneButton = document.getElementById('introjs-skipbutton');
-        
-        doneButton.addEventListener('click', function(){
-            console.log(2222);
-        });
-        
         function toggleCommentsMode(){
-//            if (!window.jQuery) {
-//                return false;
-//            }
             
             if(showCommentsModeFlag){
                 $('.introjs-hints, #add-comment, #add-step, #add-file, #run-guide, #guide-steps').remove();
@@ -156,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             
             $.ajax({
-                method: "POST",
+                type: "POST",
                 url: "http://oldtimers.me/server.php?action=getComments",
                 data: {
                     'baseURL' :  location.origin
@@ -165,19 +156,20 @@ document.addEventListener('DOMContentLoaded', function(){
             .done(function( result ) {
                 comments = JSON.parse(result);
                 intro = introJs();
+                intro.setOptions({
+                    'showBullets': false,
+                });
                 intro.onexit(offElementsHighlightMode);
-
-                
                     //Add comment button
-                    $('#toggle-comment-mode').after($('<s>').text('Add comment').attr('id', 'add-comment').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-comment'));
+                    $('#toggle-comment-mode').before($('<s>').text('Add comment').attr('id', 'add-comment').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-comment'));
                     //Add step button
-                    $('#toggle-comment-mode').after($('<s>').text('Add guide step').attr('id', 'add-step').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-step'));
+                    $('#toggle-comment-mode').before($('<s>').text('Add guide step').attr('id', 'add-step').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-step'));
                     //Add File/Image button
-                    $('#toggle-comment-mode').after($('<s>').text('Add file/image').attr('id', 'add-file').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-file'));
+                    $('#toggle-comment-mode').before($('<s>').text('Add file/image').attr('id', 'add-file').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-add-file'));
                     //Run guide button
-                    $('#toggle-comment-mode').after($('<s>').text('Run guide').attr('id', 'run-guide').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-run-guide'));
+                    $('#toggle-comment-mode').before($('<s>').text('Run guide').attr('id', 'run-guide').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-run-guide'));
                     //Guide steps list
-                    $('#toggle-comment-mode').after($('<ul>').attr('id', 'guide-steps').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-step-list'));
+                    $('#toggle-comment-mode').before($('<ul>').attr('id', 'guide-steps').addClass('not-selectable').addClass('toggle-menu-block toggle-menu-step-list'));
                     
                     $('body').on('click', '#add-comment, #add-step, #add-file',  function(){
                         $('#add-comment, #add-step, #add-file').css('opacity', '0.7');
@@ -195,6 +187,12 @@ document.addEventListener('DOMContentLoaded', function(){
                     addHints(comments);
                     initJquerySortable();
                     intro.refresh();
+                    
+                    intro.onhintclose(function() {
+                        addHints(comments);
+                        initJquerySortable();
+                        intro.refresh();
+                    });
                     
                     showCommentsModeFlag = true;
             });
@@ -223,8 +221,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 currentStep++;
                 saveComment(element, comment, pathes)
             });
-            
-            
         }
         
         function addComment(element, event){
